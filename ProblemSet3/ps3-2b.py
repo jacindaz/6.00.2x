@@ -85,17 +85,17 @@ def createEmptyList(listLength):
 
 #def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb, numTrials)
 
-# TESTING FOR CORRECT BEHAVIOR ----------------------
+# TESTING FOR CORRECT BEHAVIOR ------------------------------------------
 # expected behavior - population increases rapidly
-simulationWithoutDrug(20, 100, .99, .01, 10)
+# simulationWithoutDrug(20, 100, .99, .01, 10)
 
 # expected behavior - population increases slowly
 # simulationWithoutDrug(20, 100, .21, .90, 10)
 
-# TESTING FROM GRADER ----------------------
+# TESTING FROM GRADER ---------------------------------------------------
 #simulationWithoutDrug(1, 10, 1.0, 0.0, 1)
 
 # test more - this one is incorrect
-# simulationWithoutDrug(100, 200, 0.2, 0.8, 1)
+#simulationWithoutDrug(100, 200, 0.2, 0.8, 1)
 
-#simulationWithoutDrug(1, 90, 0.8, 0.1, 1)
+simulationWithoutDrug(1, 90, 0.8, 0.1, 1)

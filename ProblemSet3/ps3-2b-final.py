@@ -1,4 +1,3 @@
-
 def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
                           numTrials):
     """
@@ -14,7 +13,8 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     clearProb: Maximum clearance probability (a float between 0-1)
     numTrials: number of simulation runs to execute (an integer)
     """
-    num_viruses_list = createEmptyList(300)
+    timestep = 300
+    num_viruses_list = createEmptyList(timestep)
 
     for trial in range(numTrials):
         index = 0
@@ -25,22 +25,22 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
         patient = Patient(viruses, maxPop)
 
         # update and insert count into list for 300 time steps
-        for time_step in range(300):
+        for time_step in range(timestep):
             num_viruses_list[index] += patient.update()
             index += 1
 
-    viruses_average = num_viruses_list
-    for virus in num_viruses_list:
-        virus = virus / (300.0)
+    viruses_average = calcAverage(num_viruses_list, numTrials)
+    plotSimulationWithoutDrug(range(1, 301), viruses_average)
 
-    # FOR THE GRAPH:
-    # population at time=0 is the population after the first call to update
-    # X axis: number of elapsed time steps
-    # Y axis: average size of the virus population in the patient
-
-    # plot graph - pylab.plot('list of x values', 'list of y values')
+def plotSimulationWithoutDrug(x_values, y_values):
+    """
+    population at time=0 is the population after the first call to update
+    X axis: number of elapsed time steps
+    Y axis: average size of the virus population in the patient
+    returns: a plot!
+    """
     pylab.figure(1)
-    pylab.plot(range(1, 301), viruses_average)
+    pylab.plot(x_values, y_values)
 
     pylab.title('Simulation without Drugs')
     pylab.xlabel('Number of Elapsed Time Steps')
@@ -49,6 +49,14 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     pylab.legend(loc = 'best')
     pylab.show()
 
+def calcAverage(list_to_average, numTrials):
+    averaged_list = []
+    for list_item in list_to_average:
+        divided_virus = float(list_item / numTrials)
+        averaged_list.append(divided_virus)
+    return averaged_list
+
+
 def createVirusesList(numViruses, maxBirthProb, clearProb):
     viruses = []
     for virus in range(numViruses):
@@ -56,7 +64,7 @@ def createVirusesList(numViruses, maxBirthProb, clearProb):
     return viruses
 
 def createEmptyList(listLength):
-    list = []
+    zeroes_list = []
     for list_item in range(listLength):
-        list.append(0)
-    return list
+        zeroes_list.append(0)
+    return zeroes_list
