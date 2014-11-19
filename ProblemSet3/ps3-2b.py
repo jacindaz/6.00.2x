@@ -21,40 +21,31 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     clearProb: Maximum clearance probability (a float between 0-1)
     numTrials: number of simulation runs to execute (an integer)
     """
-    print 'Num trials: ', numTrials
-    num_viruses_list = createEmptyList(300)
-    print "\nList of zeroes for virus count: ", num_viruses_list
+    timestep = 300
+    num_viruses_list = createEmptyList(timestep)
 
     for trial in range(numTrials):
         index = 0
-        #print "\n========================="
-        print 'Trial:', trial
-
-        # list of viruses, SimpleVirus(maxBirthProb, clearProb)
         virus = SimpleVirus(maxBirthProb, clearProb)
         viruses = createVirusesList(numViruses, maxBirthProb, clearProb)
 
         # create a new Patient
         patient = Patient(viruses, maxPop)
-        #print 'New patient created: ', patient
 
         # update and insert count into list for 300 time steps
-        for time_step in range(300):
-            # print "Trial: ", trial, "timestep: ", time_step
-
-            # pdb.set_trace()
+        for time_step in range(timestep):
             num_viruses_list[index] += patient.update()
             index += 1
 
-    viruses_average = num_viruses_list
-    final_averages = []
+    viruses_average = []
     for virus in num_viruses_list:
-        # pdb.set_trace()
-        # print 'Virus: ', virus
-        final_averages.append(float(virus) / float(300))
-        # print 'New viruses list: ', final_averages
+        divided_virus = float(virus / numTrials)
+        viruses_average.append(divided_virus)
+        # print "\nvirus: ", virus, 'divided_virus: ', divided_virus
+        # print 'virus_average', viruses_average
 
-    print "\nNew virus averages list: ", final_averages
+    print 'New viruses list: ', viruses_average
+
 
     # FOR THE GRAPH:
     # population at time=0 is the population after the first call to update
@@ -64,11 +55,11 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     # plot graph - pylab.plot('list of x values', 'list of y values')
     pylab.figure(1)
     pylab.plot(range(1, 301), viruses_average)
-    # pylab.yAxis = [0.0] * 300
 
     pylab.title('Simulation without Drugs')
     pylab.xlabel('Number of Elapsed Time Steps')
     pylab.ylabel('Average Size of the Virus Population')
+    pylab.figure(1)
     pylab.legend(loc = 'best')
     pylab.show()
 
@@ -79,15 +70,29 @@ def createVirusesList(numViruses, maxBirthProb, clearProb):
     return viruses
 
 def createEmptyList(listLength):
-    list = []
+    zeroes_list = []
     for list_item in range(listLength):
-        list.append(0)
-    return list
+        zeroes_list.append(0)
+    return zeroes_list
+
 
 
 #def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb, numTrials)
-simulationWithoutDrug(1, 10, 1.0, 0.0, 1)
-#simulationWithoutDrug(100, 200, 0.2, 0.8, 1)
+
+# TESTING FOR CORRECT BEHAVIOR ----------------------
+# expected behavior - population increases rapidly
+simulationWithoutDrug(20, 100, .99, .01, 10)
+
+# expected behavior - population increases slowly
+# simulationWithoutDrug(20, 100, .21, .90, 10)
+
+# TESTING FROM GRADER ----------------------
+#simulationWithoutDrug(1, 10, 1.0, 0.0, 1)
+
+# test more - this one is incorrect
+# simulationWithoutDrug(100, 200, 0.2, 0.8, 1)
+
+#simulationWithoutDrug(1, 90, 0.8, 0.1, 1)
 
 # numViruses = 100
 # maxPop = 1000
