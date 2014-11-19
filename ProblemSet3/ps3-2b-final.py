@@ -30,7 +30,7 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
             index += 1
 
     viruses_average = calcAverage(num_viruses_list, numTrials)
-    plotSimulationWithoutDrug(range(1, 301), viruses_average)
+    plotSimulationWithoutDrug(viruses_average, range(1, 301))
 
 def plotSimulationWithoutDrug(x_values, y_values):
     """
