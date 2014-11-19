@@ -1,5 +1,6 @@
 from ps3b_precompiled_27 import *
 import pdb
+import random
 
 #
 # PROBLEM 4
@@ -120,7 +121,7 @@ class ResistantVirus(SimpleVirus):
         # A virus particle will only reproduce if it is resistant
         #   to ALL the drugs in the activeDrugs list
         drugs_resistance = self.resistantAllDrugs(activeDrugs)
-        prob_inherit_resistance = random.random() * (1 - self.mutProb)
+        prob_inherit_resistance = 1 - self.mutProb
 
         # if resistant to all drugs, is able to reproduce
         if drugs_resistance:
@@ -128,12 +129,17 @@ class ResistantVirus(SimpleVirus):
 
         # (stochastic) virus reproduces with probability:
             # self.maxBirthProb * (1 - popDensity)
-            prob_reproduce = random.random() * self.maxBirthProb * (1 - popDensity)
+            prob_reproduce = self.maxBirthProb * (1 - popDensity)
+            random_reproduce = random.random()
             print 'Probability of it reproducing: ', prob_reproduce
 
-            # will reproduce: if prob of birth is 1 (guaranteed)
-            #                 or if random_reproduce >= .5
-            if (self.maxBirthProb == 1) or (prob_reproduce >= .5):
+            # will not reproduce
+            if random_reproduce > prob_reproduce:
+                print 'Boo boo. The virus will not reproduce.'
+                raise NoChildException
+
+            # will reproduce
+            else:
                 print 'Shwet. The virus will reproduce!'
 
                 #ResistantVirus(maxBirthProb, clearProb, resistances, mutProb)
@@ -145,40 +151,48 @@ class ResistantVirus(SimpleVirus):
                 # inheriting that resistance trait from the parent, and probability
                 # mutProb of switching that resistance trait in the offspring.
 
-                # if mutProb is 0
-                if (self.mutProb == 0) or (prob_inherit_resistance >= .5):
-                    print 'The virus will not mutate'
-                    # inherits parent resistances, doesn't mutate
-                    offspring.resistances = self.resistances
-                    return offspring
+                new_resistances = self.newResistances(self.resistances)
+                offspring.resistances = new_resistances
+                pdb.set_trace()
+                return offspring
 
-                # does not inherit parent resistances, does mutate
-                elif (self.mutProb == 1) or (prob_inherit_resistance < .5):
-                    print 'The virus will mutate'
-                    new_resistances = self.newResistances(self.resistances, prob_inherit_resistance)
-                    offspring.resistances = new_resistances
-                    return offspring
+                # if (self.mutProb == 0) or (prob_inherit_resistance >= .5):
+                #     print "\nThe virus will not mutate"
+                #     print "This is the prob_inherit_resistance: ", prob_inherit_resistance
+                #     # inherits parent resistances, doesn't mutate
+                #     offspring.resistances = self.resistances
+                #     return offspring
+                #
+                # # does not inherit parent resistances, does mutate
+                # elif (self.mutProb == 1) or (prob_inherit_resistance > .5):
+                #     print "\nThe virus will mutate"
+                #     print "This is the prob_inherit_resistance: ", prob_inherit_resistance
+                #     new_resistances = self.newResistances(self.resistances, prob_inherit_resistance)
+                #     offspring.resistances = new_resistances
+                #     return offspring
 
-            # if not resistant to all drugs, will not reproduce
-            elif (self.maxBirthProb == 0) or (random_reproduce < .5):
-                print 'Boo boo. The virus will not reproduce.'
-                raise NoChildException
+        # if not resistant to all drugs, can't reproduce
+        else:
+            print 'Sorry, not resistance to all activeDrugs. Will not reproduce.'
 
-    def newResistances(self, current_resistances, mutProb):
+    def newResistances(self, current_resistances):
         new_resistances = {}
-        prob_inherit_resistance = random.random() * (1 - self.mutProb)
-        print 'Prob inherit resistance from parent: ', prob_inherit_resistance
 
-        for key,value in current_resistances:
-            if (self.mutProb == 1) or (prob_inherit_resistance >= .5):
+        for key,value in current_resistances.items():
+            prob_inherit_resistance = 1 - self.mutProb
+            random_resistance = random.random()
+            print "\nThis is the prob_inherit_resistance: ", prob_inherit_resistance
+            print 'random resistance: ', random_resistance
+
+            if random_resistance <= prob_inherit_resistance:
                 print 'The drug will mutate to change resistance'
                 new_resistances[key] = (not value)
 
-            elif (self.mutProb == 0) or (prob_inherit_resistance < .5):
+            elif random_resistance > prob_inherit_resistance:
                 print 'The drug will not mutate, will keep the same resistance'
                 new_resistances[key] = value
 
-        print 'These are the new resistances: ', new_resistances
+        print "\nThese are the new resistances: ", new_resistances
         return new_resistances
 
     # A virus particle will only reproduce if it is resistant to
@@ -213,9 +227,17 @@ class ResistantVirus(SimpleVirus):
 # v = ResistantVirus(0.0, 1.0, {}, 0.0)
 
 # Check that mutProb is applied correctly in the reproduce step.
-v = ResistantVirus(1.0, 0.0, {'drug1':True, 'drug2': True, 'drug3': True, 'drug4': True, 'drug5': True, 'drug6': True}, 0.5)
+# v = ResistantVirus(1.0, 0.0, {'drug1':True, 'drug2': True, 'drug3': True, 'drug4': True, 'drug5': True, 'drug6': True}, 0.5)
 
-popDensity = .2
+# v = ResistantVirus(1.0, 0.0, {"drug2": True}, 1.0)
+
+v = ResistantVirus(1.0, 0.0, {'drug1':True, 'drug2': True, 'drug3': True, 'drug4': True, 'drug5': True, 'drug6': True}, 0.5)
+v.reproduce(0, [])
+# Reproducing 10 times by calling v.reproduce(0, [])
+# Checking the resistances of the children to each of the 6 prescriptions.
+# Since mutProb = 0.5 and the parent virus was resistant to all 6 drugs,
+#   we expect each child to be resistant to, on average, half of the six drugs.
+
 print "\n================="
 print "Created a new virus: \n", v
 print "\nmaxBirthProb: ", v.maxBirthProb
@@ -224,7 +246,7 @@ print 'mutProb: ', v.mutProb
 print 'Dictionary of resistances: ', v.resistances
 print "\n================="
 
-pdb.set_trace()
+# pdb.set_trace()
 # Reproducing 10 times by calling v.reproduce(0, [])
 
 # v.reproduce(popDensity, v.resistances)
