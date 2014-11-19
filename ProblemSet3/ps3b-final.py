@@ -1,30 +1,3 @@
-# Problem Set 3: Simulating the Spread of Disease and Virus Population Dynamics
-
-import numpy
-import random
-import pylab
-import pdb
-
-'''
-Begin helper code
-'''
-
-class NoChildException(Exception):
-    """
-    NoChildException is raised by the reproduce() method in the SimpleVirus
-    and ResistantVirus classes to indicate that a virus particle does not
-    reproduce. You can use NoChildException as is, you do not need to
-    modify/add any code.
-    """
-    print 'Inside nochildexception exception'
-
-'''
-End helper code
-'''
-
-#
-# PROBLEM 2
-
 class SimpleVirus(object):
 
     """
@@ -85,6 +58,7 @@ class SimpleVirus(object):
         maxBirthProb and clearProb values as this virus. Raises a
         NoChildException if this virus particle does not reproduce.
         """
+        # does particle need to reproduce?
         prob_reproduce = self.maxBirthProb * (1 - popDensity)
         random_reproduce = random.random()
 
@@ -92,7 +66,6 @@ class SimpleVirus(object):
             raise NoChildException
         else:
             return SimpleVirus(self.maxBirthProb, self.clearProb)
-
 
 class Patient(object):
     """
@@ -155,11 +128,9 @@ class Patient(object):
         returns: The total virus population at the end of the update (an
         integer)
         """
-
         viruses_copy = self.viruses
         for virus in viruses_copy:
             cleared = virus.doesClear()
-            print 'Running virus.doesClear() ', cleared
             if cleared:
                 self.viruses.remove(virus)
 
@@ -177,19 +148,3 @@ class Patient(object):
                     pass
 
         return self.getTotalPop()
-
-
-v1 = SimpleVirus(0.99, 0.55)
-popDensity = .02
-prob_reproduce = v1.maxBirthProb * (1 - popDensity)
-print 'Prob reproduce: ', prob_reproduce
-
-v1.reproduce(popDensity)
-
-# virus = SimpleVirus(.75, 1.0)
-# print 'Created a new SimpleVirus(maxBirthProb, clearProb): ', virus
-#
-# p = Patient([virus], 100)
-# print 'Created a new Patient(viruses, maxPop): ', p
-# print 'Current population: ', p.viruses
-# print 'Current virus population: ', p.getTotalPop()
