@@ -37,24 +37,20 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
             num_viruses_list[index] += patient.update()
             index += 1
 
-    viruses_average = []
-    for virus in num_viruses_list:
-        divided_virus = float(virus / numTrials)
-        viruses_average.append(divided_virus)
-        # print "\nvirus: ", virus, 'divided_virus: ', divided_virus
-        # print 'virus_average', viruses_average
+    viruses_average = calcAverage(num_viruses_list, numTrials)
 
     print 'New viruses list: ', viruses_average
+    plotSimulationWithoutDrug(range(1, 301), viruses_average)
 
-
-    # FOR THE GRAPH:
-    # population at time=0 is the population after the first call to update
-    # X axis: number of elapsed time steps
-    # Y axis: average size of the virus population in the patient
-
-    # plot graph - pylab.plot('list of x values', 'list of y values')
+def plotSimulationWithoutDrug(x_values, y_values):
+    """
+    population at time=0 is the population after the first call to update
+    X axis: number of elapsed time steps
+    Y axis: average size of the virus population in the patient
+    returns: a plot!
+    """
     pylab.figure(1)
-    pylab.plot(range(1, 301), viruses_average)
+    pylab.plot(x_values, y_values)
 
     pylab.title('Simulation without Drugs')
     pylab.xlabel('Number of Elapsed Time Steps')
@@ -62,6 +58,16 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     pylab.figure(1)
     pylab.legend(loc = 'best')
     pylab.show()
+
+def calcAverage(list_to_average, numTrials):
+    averaged_list = []
+    for list_item in list_to_average:
+        divided_virus = float(list_item / numTrials)
+        averaged_list.append(divided_virus)
+        # print "\nvirus: ", list_item, 'divided_virus: ', divided_virus
+        # print 'virus_average', averaged_list
+    return averaged_list
+
 
 def createVirusesList(numViruses, maxBirthProb, clearProb):
     viruses = []
@@ -93,18 +99,3 @@ simulationWithoutDrug(20, 100, .99, .01, 10)
 # simulationWithoutDrug(100, 200, 0.2, 0.8, 1)
 
 #simulationWithoutDrug(1, 90, 0.8, 0.1, 1)
-
-# numViruses = 100
-# maxPop = 1000
-# maxBirthProb = .99
-# clearProb = .05
-# numTrials = 300
-#
-# num_viruses_list = createEmptyList(numTrials)
-# print "\nList of zeroes for virus count: ", num_viruses_list
-#
-# virus = SimpleVirus(maxBirthProb, clearProb)
-# viruses = createVirusesList(numViruses, maxBirthProb, clearProb)
-#
-# patient = Patient(viruses, maxPop)
-# print 'New patient created: ', patient
