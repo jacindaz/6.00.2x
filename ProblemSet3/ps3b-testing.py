@@ -88,16 +88,11 @@ class SimpleVirus(object):
         # does particle need to reproduce?
         prob_reproduce = self.maxBirthProb * (1 - popDensity)
         random_reproduce = random.random() * prob_reproduce
-        offspring = None
 
-        if self.maxBirthProb == 1:
-            offspring = SimpleVirus(self.maxBirthProb, self.clearProb)
-        elif random_reproduce >= .5:
-            offspring = SimpleVirus(self.maxBirthProb, self.clearProb)
-        elif self.maxBirthProb < .5:
+        if (self.maxBirthProb == 1) or (random_reproduce >= .5):
+            return SimpleVirus(self.maxBirthProb, self.clearProb)
+        elif (self.maxBirthProb == 0) or (random_reproduce < .5):
             raise NoChildException
-
-        return offspring
 
 
 class Patient(object):
