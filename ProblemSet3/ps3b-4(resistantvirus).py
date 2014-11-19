@@ -120,6 +120,7 @@ class ResistantVirus(SimpleVirus):
         # A virus particle will only reproduce if it is resistant
         #   to ALL the drugs in the activeDrugs list
         drugs_resistance = self.resistantAllDrugs(activeDrugs)
+        prob_inherit_resistance = random.random() * (1 - self.mutProb)
 
         # if resistant to all drugs, is able to reproduce
         if drugs_resistance:
@@ -130,15 +131,16 @@ class ResistantVirus(SimpleVirus):
             prob_reproduce = random.random() * self.maxBirthProb * (1 - popDensity)
             print 'Probability of it reproducing: ', prob_reproduce
 
-            prob_inherit_resistance = 1 - self.mutProb
-            print 'Prob inherit resistance from parent: ', prob_inherit_resistance
-
             # will reproduce: if prob of birth is 1 (guaranteed)
             #                 or if random_reproduce >= .5
-            if (self.maxBirthProb == 1) or (random_reproduce >= .5):
+            if (self.maxBirthProb == 1) or (prob_reproduce >= .5):
                 print 'Shwet. The virus will reproduce!'
 
-                offspring = ResistantVirus(self.maxBirthProb, self.clearProb)
+                #ResistantVirus(maxBirthProb, clearProb, resistances, mutProb)
+                #placeholder ResistantVirus object, will fill in resistances based on
+                #    if the offspring mutates or not
+                offspring = ResistantVirus(self.maxBirthProb, self.clearProb, {}, self.mutProb)
+
                 # For each drug resistance trait of the virus, the offspring has probability 1-mutProb of
                 # inheriting that resistance trait from the parent, and probability
                 # mutProb of switching that resistance trait in the offspring.
@@ -147,23 +149,47 @@ class ResistantVirus(SimpleVirus):
                 if (self.mutProb == 0) or (prob_inherit_resistance >= .5):
                     print 'The virus will not mutate'
                     # inherits parent resistances, doesn't mutate
-                    return SimpleVirus(self.maxBirthProb, self.clearProb, self.resistances, self.mutProb)
+                    offspring.resistances = self.resistances
+                    return offspring
 
                 # does not inherit parent resistances, does mutate
                 elif (self.mutProb == 1) or (prob_inherit_resistance < .5):
                     print 'The virus will mutate'
-                    new_resistances = '????? FIGURE THIS OUT'
-                    return SimpleVirus(self.maxBirthProb, self.clearProb, new_resistances, self.mutProb)
+                    new_resistances = self.newResistances(self.resistances, prob_inherit_resistance)
+                    offspring.resistances = new_resistances
+                    return offspring
 
             # if not resistant to all drugs, will not reproduce
             elif (self.maxBirthProb == 0) or (random_reproduce < .5):
                 print 'Boo boo. The virus will not reproduce.'
                 raise NoChildException
 
+    def newResistances(self, current_resistances, mutProb):
+        new_resistances = {}
+        prob_inherit_resistance = random.random() * (1 - self.mutProb)
+        print 'Prob inherit resistance from parent: ', prob_inherit_resistance
 
+        for key,value in current_resistances:
+            if (self.mutProb == 1) or (prob_inherit_resistance >= .5):
+                print 'The drug will mutate to change resistance'
+                new_resistances[key] = (not value)
+
+            elif (self.mutProb == 0) or (prob_inherit_resistance < .5):
+                print 'The drug will not mutate, will keep the same resistance'
+                new_resistances[key] = value
+
+        print 'These are the new resistances: ', new_resistances
+        return new_resistances
+
+    # A virus particle will only reproduce if it is resistant to
+    # ALL the drugs in the activeDrugs list
     def resistantAllDrugs(self, activeDrugs):
-        for key, value in activeDrugs:
-            if value == False:
+        print "These are all the activeDrugs: \n", activeDrugs
+
+        for activeDrug in activeDrugs:
+            # if False in the self.resistances dictionary
+            resistant = self.resistances[activeDrug]
+            if not resistant:
                 print "Ooopa! Found a drug that virus is not resistant to.\
                         \nReturn False"
                 return False
@@ -177,7 +203,18 @@ class ResistantVirus(SimpleVirus):
 
 # TEST CASES ---------------------------------------
 
-v = ResistantVirus(1.0, 0.0, {}, 0.0)
+# Create a ResistantVirus that is never cleared and never reproduces
+# v = ResistantVirus(0.0, 0.0, {}, 0.0)
+
+# Create a ResistantVirus that is never cleared and always reproduces.
+# v = ResistantVirus(1.0, 0.0, {}, 0.0)
+
+# Create a ResistantVirus that is always cleared and never reproduces.
+# v = ResistantVirus(0.0, 1.0, {}, 0.0)
+
+# Check that mutProb is applied correctly in the reproduce step.
+v = ResistantVirus(1.0, 0.0, {'drug1':True, 'drug2': True, 'drug3': True, 'drug4': True, 'drug5': True, 'drug6': True}, 0.5)
+
 popDensity = .2
 print "\n================="
 print "Created a new virus: \n", v
@@ -188,3 +225,7 @@ print 'Dictionary of resistances: ', v.resistances
 print "\n================="
 
 pdb.set_trace()
+# Reproducing 10 times by calling v.reproduce(0, [])
+
+# v.reproduce(popDensity, v.resistances)
+# pdb.set_trace()
