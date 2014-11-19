@@ -153,23 +153,8 @@ class ResistantVirus(SimpleVirus):
 
                 new_resistances = self.newResistances(self.resistances)
                 offspring.resistances = new_resistances
-                pdb.set_trace()
-                return offspring
 
-                # if (self.mutProb == 0) or (prob_inherit_resistance >= .5):
-                #     print "\nThe virus will not mutate"
-                #     print "This is the prob_inherit_resistance: ", prob_inherit_resistance
-                #     # inherits parent resistances, doesn't mutate
-                #     offspring.resistances = self.resistances
-                #     return offspring
-                #
-                # # does not inherit parent resistances, does mutate
-                # elif (self.mutProb == 1) or (prob_inherit_resistance > .5):
-                #     print "\nThe virus will mutate"
-                #     print "This is the prob_inherit_resistance: ", prob_inherit_resistance
-                #     new_resistances = self.newResistances(self.resistances, prob_inherit_resistance)
-                #     offspring.resistances = new_resistances
-                #     return offspring
+                return offspring
 
         # if not resistant to all drugs, can't reproduce
         else:
@@ -177,6 +162,8 @@ class ResistantVirus(SimpleVirus):
 
     def newResistances(self, current_resistances):
         new_resistances = {}
+        print "\n==================="
+        print "Inside newResistances method"
 
         for key,value in current_resistances.items():
             prob_inherit_resistance = 1 - self.mutProb
@@ -184,15 +171,17 @@ class ResistantVirus(SimpleVirus):
             print "\nThis is the prob_inherit_resistance: ", prob_inherit_resistance
             print 'random resistance: ', random_resistance
 
-            if random_resistance <= prob_inherit_resistance:
+            # pdb.set_trace()
+
+            if prob_inherit_resistance > random_resistance:
+                print 'The drug will not mutate, will keep the same resistance'
+                new_resistances[key] = value
+            else:
                 print 'The drug will mutate to change resistance'
                 new_resistances[key] = (not value)
 
-            elif random_resistance > prob_inherit_resistance:
-                print 'The drug will not mutate, will keep the same resistance'
-                new_resistances[key] = value
-
         print "\nThese are the new resistances: ", new_resistances
+        print "===================\n"
         return new_resistances
 
     # A virus particle will only reproduce if it is resistant to
@@ -217,37 +206,77 @@ class ResistantVirus(SimpleVirus):
 
 # TEST CASES ---------------------------------------
 
-# Create a ResistantVirus that is never cleared and never reproduces
-# v = ResistantVirus(0.0, 0.0, {}, 0.0)
+# Expected 50/100 to have resistance to drug2, got 100/100.
+v = ResistantVirus(1.0, 0.0, {"drug2": True}, 1.0)
+v.reproduce(.01, ["drug2"])
 
-# Create a ResistantVirus that is never cleared and always reproduces.
-# v = ResistantVirus(1.0, 0.0, {}, 0.0)
 
-# Create a ResistantVirus that is always cleared and never reproduces.
-# v = ResistantVirus(0.0, 1.0, {}, 0.0)
 
-# Check that mutProb is applied correctly in the reproduce step.
-# v = ResistantVirus(1.0, 0.0, {'drug1':True, 'drug2': True, 'drug3': True, 'drug4': True, 'drug5': True, 'drug6': True}, 0.5)
+# UNCOMMENTED VERSION
 
-# v = ResistantVirus(1.0, 0.0, {"drug2": True}, 1.0)
+class ResistantVirus(SimpleVirus):
 
-v = ResistantVirus(1.0, 0.0, {'drug1':True, 'drug2': True, 'drug3': True, 'drug4': True, 'drug5': True, 'drug6': True}, 0.5)
-v.reproduce(0, [])
-# Reproducing 10 times by calling v.reproduce(0, [])
-# Checking the resistances of the children to each of the 6 prescriptions.
-# Since mutProb = 0.5 and the parent virus was resistant to all 6 drugs,
-#   we expect each child to be resistant to, on average, half of the six drugs.
+    def __init__(self, maxBirthProb, clearProb, resistances, mutProb):
+        SimpleVirus.__init__(self, maxBirthProb, clearProb)
+        self.resistances = resistances
+        self.mutProb = mutProb
 
-print "\n================="
-print "Created a new virus: \n", v
-print "\nmaxBirthProb: ", v.maxBirthProb
-print 'clearProb: ', v.clearProb
-print 'mutProb: ', v.mutProb
-print 'Dictionary of resistances: ', v.resistances
-print "\n================="
+    def getResistances(self):
+        return self.resistances
 
-# pdb.set_trace()
-# Reproducing 10 times by calling v.reproduce(0, [])
+    def getMutProb(self):
+        return self.mutProb
 
-# v.reproduce(popDensity, v.resistances)
-# pdb.set_trace()
+    def isResistantTo(self, drug):
+        for key in self.resistances:
+            if drug == key:
+                if self.resistances[key] == True:
+                    return True
+        return False
+
+
+    def reproduce(self, popDensity, activeDrugs):
+        drugs_resistance = self.resistantAllDrugs(activeDrugs)
+        prob_inherit_resistance = 1 - self.mutProb
+
+        # if resistant to all drugs, is able to reproduce
+        if drugs_resistance:
+            prob_reproduce = self.maxBirthProb * (1 - popDensity)
+            random_reproduce = random.random()
+
+            # will not reproduce
+            if random_reproduce > prob_reproduce:
+                raise NoChildException
+
+            # will reproduce
+            else:
+                offspring = ResistantVirus(self.maxBirthProb, self.clearProb, {}, self.mutProb)
+                new_resistances = self.newResistances(self.resistances)
+                offspring.resistances = new_resistances
+
+                return offspring
+
+        # if not resistant to all drugs, can't reproduce
+        else:
+            raise NoChildException
+
+    def newResistances(self, current_resistances):
+        new_resistances = {}
+
+        for key,value in current_resistances.items():
+            prob_inherit_resistance = 1 - self.mutProb
+            random_resistance = random.random()
+
+            if prob_inherit_resistance > random_resistance:
+                new_resistances[key] = value
+            else:
+                new_resistances[key] = (not value)
+
+        return new_resistances
+
+    def resistantAllDrugs(self, activeDrugs):
+        for activeDrug in activeDrugs:
+            resistant = self.resistances[activeDrug]
+            if not resistant:
+                return False
+        return True
