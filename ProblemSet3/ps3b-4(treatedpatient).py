@@ -1,6 +1,159 @@
-from ps3b_precompiled_27 import *
+# from ps3b_precompiled_27 import *
 import pdb
 import random
+
+class SimpleVirus(object):
+
+    """
+    Representation of a simple virus (does not model drug effects/resistance).
+    """
+    def __init__(self, maxBirthProb, clearProb):
+        """
+        Initialize a SimpleVirus instance, saves all parameters as attributes
+        of the instance.
+        maxBirthProb: Maximum reproduction probability (a float between 0-1)
+        clearProb: Maximum clearance probability (a float between 0-1).
+        """
+        self.maxBirthProb = maxBirthProb
+        self.clearProb = clearProb
+
+    def getMaxBirthProb(self):
+        """
+        Returns the max birth probability.
+        """
+        return self.maxBirthProb
+
+    def getClearProb(self):
+        """
+        Returns the clear probability.
+        """
+        return self.clearProb
+
+    def doesClear(self):
+        """ Stochastically determines whether this virus particle is cleared from the
+        patient's body at a time step.
+        returns: True with probability self.getClearProb and otherwise returns
+        False.
+        """
+        if self.clearProb == 0:
+            return False
+        elif (self.clearProb == 1):
+            return True
+        else:
+            return random.choice([True, False])
+
+
+    def reproduce(self, popDensity):
+        """
+        Stochastically determines whether this virus particle reproduces at a
+        time step. Called by the update() method in the Patient and
+        TreatedPatient classes. The virus particle reproduces with probability
+        self.maxBirthProb * (1 - popDensity).
+
+        If this virus particle reproduces, then reproduce() creates and returns
+        the instance of the offspring SimpleVirus (which has the same
+        maxBirthProb and clearProb values as its parent).
+
+        popDensity: the population density (a float), defined as the current
+        virus population divided by the maximum population.
+
+        returns: a new instance of the SimpleVirus class representing the
+        offspring of this virus particle. The child should have the same
+        maxBirthProb and clearProb values as this virus. Raises a
+        NoChildException if this virus particle does not reproduce.
+        """
+        # does particle need to reproduce?
+        prob_reproduce = self.maxBirthProb * (1 - popDensity)
+        random_reproduce = random.random()
+
+        if random_reproduce > prob_reproduce:
+            raise NoChildException
+        else:
+            return SimpleVirus(self.maxBirthProb, self.clearProb)
+
+class Patient(object):
+    """
+    Representation of a simplified patient. The patient does not take any drugs
+    and his/her virus populations have no drug resistance.
+    """
+
+    def __init__(self, viruses, maxPop):
+        """
+        Initialization function, saves the viruses and maxPop parameters as
+        attributes.
+
+        viruses: the list representing the virus population (a list of
+        SimpleVirus instances)
+
+        maxPop: the maximum virus population for this patient (an integer)
+        """
+
+        self.viruses = viruses
+        self.maxPop = maxPop
+
+    def getViruses(self):
+        """
+        Returns the viruses in this Patient.
+        """
+        return self.viruses
+
+
+    def getMaxPop(self):
+        """
+        Returns the max population.
+        """
+        return self.maxPop
+
+
+    def getTotalPop(self):
+        """
+        Gets the size of the current total virus population.
+        returns: The total virus population (an integer)
+        """
+
+        return len(self.viruses)
+
+
+    def update(self):
+        """
+        Update the state of the virus population in this patient for a single
+        time step. update() should execute the following steps in this order:
+
+        - Determine whether each virus particle survives and updates the list
+        of virus particles accordingly.
+
+        - The current population density is calculated. This population density
+          value is used until the next call to update()
+
+        - Based on this value of population density, determine whether each
+          virus particle should reproduce and add offspring virus particles to
+          the list of viruses in this patient.
+
+        returns: The total virus population at the end of the update (an
+        integer)
+        """
+        viruses_copy = self.viruses
+        for virus in viruses_copy:
+            cleared = virus.doesClear()
+            if cleared:
+                self.viruses.remove(virus)
+
+        # for viruses that did survive, and need to be reproduced
+        for virus in self.viruses:
+            population = self.getTotalPop()
+            popDensity = population / float(self.maxPop)
+            if popDensity < 1:
+                try:
+                    offspring = virus.reproduce(popDensity)
+                    if offspring != None:
+                        self.viruses.append(offspring)
+                except NoChildException:
+                    # failed to reproduce, catching error
+                    pass
+
+        return self.getTotalPop()
+
+
 
 class ResistantVirus(SimpleVirus):
 
@@ -64,8 +217,7 @@ class ResistantVirus(SimpleVirus):
 
     def resistantAllDrugs(self, activeDrugs):
         for activeDrug in activeDrugs:
-            resistant = self.resistances[activeDrug]
-            if not resistant:
+            if self.isResistantTo(activeDrug) == False:
                 return False
         return True
 
@@ -139,19 +291,17 @@ class TreatedPatient(Patient):
 
             # look at list of drugs
             for drug in drugResist:
-                if resistances_copy[drug] == True:
+
+                # checks if key exists, if not, returns False
+                # if yes, returns the value
+                drug_resistance = resistances_copy.get(drug, False)
+                if drug_resistance:
                     print 'Wohooo! Virus is resistant!'
                     virus_drug_resistances = True
                 else:
                     print 'Oops, sorry. Not resistant!'
                     virus_drug_resistances = False
-
-            # for resistance in virus.resistances:
-            #     if (virus.resistances[resistance] == True):
-            #         virus_drug_resistances = True
-            #     else:
-            #         print 'Oops, sorry. Not resistant!'
-            #         virus_drug_resistances = False
+                    break
 
             # count number of viruses who have resistances for all drugs
             if virus_drug_resistances == True:
@@ -196,20 +346,18 @@ class TreatedPatient(Patient):
         returns: The total virus population at the end of the update (an
         integer)
         """
-        viruses_copy = self.viruses
+        viruses_copy = self.getViruses()
 
         print "\n===================="
         print 'Inside update() TreatedPatient method'
         print 'Current virus list: ', self.getViruses()
 
-        for virus in viruses_copy:
-            cleared = virus.doesClear()
-            if cleared:
-                self.getViruses().remove(virus)
-
-        print "\nSurvived viruses: ", self.getViruses()
+        pdb.set_trace()
 
         survived_viruses = self.getViruses()
+        print "\nSurvived viruses: ", survived_viruses
+        viruses_offspring = self.getViruses()
+
         # for viruses that did survive, and need to be reproduced
         for virus in survived_viruses:
             population = self.getTotalPop()
@@ -218,9 +366,9 @@ class TreatedPatient(Patient):
             #if (popDensity < 1) and (virus not in self.drugs_list):
             if (popDensity < 1):
                 try:
-                    offspring = virus.reproduce(popDensity, self.drugs_list)
+                    offspring = virus.reproduce(popDensity, self.getPrescriptions())
                     if offspring != None:
-                        self.getViruses().append(offspring)
+                        viruses_offspring.append(offspring)
                         print "\nSuccessfully reproduced!"
                         print 'New viruses list length: ', len(self.viruses)
                 except NoChildException:
@@ -232,14 +380,24 @@ class TreatedPatient(Patient):
         print 'Final viruses list length: ', len(self.viruses)
         return self.getTotalPop()
 
+    def checkAllViruses(self):
+        viruses_copy = self.getViruses()
+        for virus in viruses_copy:
+            if virus.doesClear():
+                self.getViruses().remove(virus)
 
-# virus = ResistantVirus(1.0, 0.0, {}, 0.0)
-virus = ResistantVirus(1.0, 0.0, {"drug1": False, "drug2": True}, 1.0)
-patient = TreatedPatient([virus], 100)
-# patient.update()
 
-patient.getResistPop(['drug1'])
-
+virus1 = ResistantVirus(1.0, 0.0, {"drug1": True}, 0.0)
+virus2 = ResistantVirus(1.0, 0.0, {"drug1": False, "drug2": True}, 0.0)
+virus3 = ResistantVirus(1.0, 0.0, {"drug1": True, "drug2": True}, 0.0)
+patient = TreatedPatient([virus1, virus2, virus3], 100)
+# patient.getResistPop(['drug1'])                         # => 2
+# patient.getResistPop(['drug2'])                         # => 2
+# patient.getResistPop(['drug1','drug2'])                 # => 1
+# patient.getResistPop(['drug3'])                         # => 0
+# patient.getResistPop(['drug1', 'drug3'])                # => 0
+# patient.getResistPop(['drug1','drug2', 'drug3'])        # => 0
+#
 
 # v = ResistantVirus(1.0, 0.0, {"drug1": False, "drug2": True}, 1.0)
 # p = TreatedPatient([v, v], .2)
