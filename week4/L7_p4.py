@@ -1,5 +1,32 @@
 import pylab, random, pdb
 
+def calcVariance(values_list):
+    print "\n====================="
+    print 'Values List: ', values_list
+
+    # calculate coefficient of determination
+    # variance of errors / variance of observed data
+    # to calculate variance:
+    #     calculate mean
+    #     subtract mean from each data point
+    #     take the square of differences
+    #     divide that sum by N number of data points
+    variance_sum = 0
+    N = float(len(values_list))
+    for value in values_list:
+        variance_sum += value
+
+    mean = variance_sum / N
+    print "\nMean: ", mean
+
+    squared_differences = [(value - mean)**2 for value in values_list[:]]
+    print "\nSquared differences list: ", squared_differences
+
+    variance = sum(squared_differences) / N
+    print "\nVariance: ", variance
+
+    print "=====================\n"
+
 
 def getData(fileName):
     dataFile = open(fileName, 'r')
@@ -117,13 +144,13 @@ def fitData3(fileName):
     calcVariance(xVals)
     coefficient_determination = 0
 
-    
+
     pylab.plot(xVals, yVals, 'bo', label = 'Measured points')
     pylab.title('Measured Displacement of Spring')
     pylab.xlabel('Force (Newtons)')
     pylab.ylabel('Distance (meters)')
-    a,b = pylab.polyfit(xVals, yVals, 1)  # fix y = ax + b    
-    
+    a,b = pylab.polyfit(xVals, yVals, 1)  # fix y = ax + b
+
     # use line equation to graph predicted values
     estYVals = a*xVals + b
     k = 1/a
@@ -131,7 +158,7 @@ def fitData3(fileName):
                + str(round(k, 5)))
     pylab.legend(loc = 'best')
 
-    
+
 
 fitData3('springData.txt')
 # pylab.show()
@@ -209,4 +236,3 @@ def tryFits1(fName):
 
 ##tryFits1('launcherData.txt')
 ##pylab.show()
-
