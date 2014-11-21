@@ -141,7 +141,13 @@ def fitData3(fileName):
     yVals = pylab.array(yVals[:-6])
     xVals = xVals*9.81  # convert mass to force (F = mg)
 
-    calcVariance(xVals)
+    observed_data_variance = calcVariance(xVals)
+
+    # need to grab the Y values from somewhere ??? maybe estYVals
+    # to compare with observed data Y values
+    # to calculate the variance of errors
+    # errors_variance = calcVariance(xVals)
+
     coefficient_determination = 0
 
 
