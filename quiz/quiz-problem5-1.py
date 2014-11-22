@@ -21,9 +21,10 @@ def classGrades(numTrials, target_score_min, target_score_max):
     # run simulation 10k times
     while numTrials:
         # randomly generate midterm1, midterm2, and final grades
-        midterm1 = int(random.random() * 100)
-        midterm2 = int(random.random() * 100)
-        final_exam = int(random.random() * 100)
+        #
+        midterm1 = random.randint(50, 80)
+        midterm2 = random.randint(60, 90)
+        final_exam = random.randint(55, 95)
         # print "\n================="
         # print 'Midterm1: ', midterm1
         # print 'Midterm2: ', midterm2
@@ -51,7 +52,7 @@ def calcProb(sum, N):
 
 
 def sampleQuizzes():
-    N = 10000
+    N = 9999
     min_score = 70
     max_score = 75
     count_target_score = classGrades(N, min_score, max_score)
