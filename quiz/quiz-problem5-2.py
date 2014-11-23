@@ -1,4 +1,5 @@
-import random, pdb
+import random, pdb, pylab
+import matplotlib.pyplot as plt
 
 """
 Write a procedure called plotQuizzes() that produces a plot of the distribution
@@ -26,51 +27,41 @@ def generateScores(numTrials):
         midterm1 = random.randint(50, 80)
         midterm2 = random.randint(60, 90)
         final_exam = random.randint(55, 95)
-        print "\n================="
-        print 'Midterm1: ', midterm1
-        print 'Midterm2: ', midterm2
-        print 'Final exam: ', final_exam
+        # print "\n================="
+        # print 'Midterm1: ', midterm1
+        # print 'Midterm2: ', midterm2
+        # print 'Final exam: ', final_exam
 
         # calculate final score, final grade 25% midterms, 50% final
         final_score = (midterm1 * .25) + (midterm2 * .25) + (final_exam * .5)
-        print 'Final score: ', final_score
+        # print 'Final score: ', final_score
 
         final_scores.append(final_score)
         numTrials -= 1
 
-        print "\nFinal scores list: ", final_scores
-        print "=================\n"
+        # print "\nFinal scores list: ", final_scores
+        # print "=================\n"
 
     return final_scores
 
 # generateScores(5)
 
-def countFinalScores(target_score_min, target_score_max, final_scores):
-    target_final_score_count = 0
-    for final_score in final_scores:
-        if target_score_min <= final_score <= target_score_max:
-            target_final_score_count += 1
-            print "\nNew final score count: ", target_final_score_count
-
-    print "\n================="
-    print 'Final count: ', target_final_score_count
-    print "=================\n"
-
-    return target_final_score_count
-
-countFinalScores(70, 75, [71, 72, 3, 90, 70, 75, 45])
 
 # Please only use the following Pylab functions:
 # show, plot, title, xlabel, ylabel, legend, figure, and hist
 
 def plotQuizzes():
 
-    # generate scores
-    #
+    # generate scores, pass in # of trials
+    final_scores = generateScores(10000)
 
     # plot the thing
-    pylab.figure(1)
-    pylab.xlabel('Final Score')
-    pylab.ylabel('Number of Trials')
-    pylab.title('Distribution of Scores')
-    pylab.legend(loc = 'best')
+    plt.figure(1)
+    plt.xlabel('Final Score')
+    plt.ylabel('Number of Trials')
+    plt.title('Distribution of Scores')
+    plt.legend(loc = 'best')
+    plt.hist(final_scores, bins = 7)
+    plt.show()
+
+plotQuizzes()
