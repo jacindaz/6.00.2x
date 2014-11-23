@@ -1,5 +1,4 @@
 import random, pdb, pylab
-import matplotlib.pyplot as plt
 
 """
 Write a procedure called plotQuizzes() that produces a plot of the distribution
@@ -56,12 +55,12 @@ def plotQuizzes():
     final_scores = generateScores(10000)
 
     # plot the thing
-    plt.figure(1)
-    plt.xlabel('Final Score')
-    plt.ylabel('Number of Trials')
-    plt.title('Distribution of Scores')
-    plt.legend(loc = 'best')
-    plt.hist(final_scores, bins = 7)
-    plt.show()
+    pylab.figure(1)
+    pylab.xlabel('Final Score')
+    pylab.ylabel('Number of Trials')
+    pylab.title('Distribution of Scores')
+    pylab.legend(loc = 'best')
+    pylab.hist(final_scores, bins = 7)
+    pylab.show()
 
 plotQuizzes()
