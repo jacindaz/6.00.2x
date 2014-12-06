@@ -36,26 +36,27 @@ def simulationDelayedTreatment(numTrials):
     viruses_resistance = []
 
     for trial in range(numTrials):
-        virus300 = oneSimulation(createEmptyList(300), numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 300)
-        viruses_300.append(virus300)
-
-        virus150 = oneSimulation(createEmptyList(150), numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
-        viruses_150.append(virus150)
-
-        virus75 = oneSimulation(createEmptyList(75), numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 75)
-        viruses_75.append(virus75)
-
-        # virus0 = createEmptyList(numViruses, 1)
-        viruses_0.append(100)
+        virus300 = oneSimulation(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 300)
+        virus150 = oneSimulation(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
+        virus75 = oneSimulation(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 75)
         resistances['guttagonol'] = True
 
-        virus_added = oneSimulation(createEmptyList(150), numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
-        viruses_resistance.append(virus_added)
+        virus_added300 = oneSimulation(virus300, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
+        viruses_300.append(virus_added300)
 
-    plots = [viruses_300, viruses_150, viruses_75, viruses_0, viruses_resistance]
+        virus_added150 = oneSimulation(virus150, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
+        viruses_150.append(virus_added150)
 
+        virus_added75 = oneSimulation(virus75, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
+        viruses_75.append(virus_added75)
+
+        virus_added0 = oneSimulation(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
+        viruses_0.append(virus_added0)
+
+        # pdb.set_trace()
+
+    plots = [viruses_300, viruses_150, viruses_75, viruses_0]
     plotSimulationWithDrug(plots)
-
 
 
 def createEmptyList(listLength, list_items = 0):
@@ -66,10 +67,9 @@ def createEmptyList(listLength, list_items = 0):
 
 
 
-def oneSimulation(viruses_list, numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, timestep):
+def oneSimulation(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, timestep):
     for trial in range(numTrials):
         index = 0
-        virus = ResistantVirus(maxBirthProb, clearProb, resistances, mutProb)
         viruses = createVirusesList(numViruses, maxBirthProb, clearProb, resistances, mutProb)
 
         # create a new Patient
@@ -77,10 +77,12 @@ def oneSimulation(viruses_list, numViruses, maxPop, maxBirthProb, clearProb, res
 
         # update and insert count into list for 300 time steps
         for time_step in range(timestep):
-            viruses_list[index] += patient.update()
-            index += 1
+            num_viruses = patient.update()
+            # index += 1
 
-    return viruses_list[-1]
+    # pdb.set_trace()
+    return num_viruses
+    # return viruses_list[-1]
 
 def createVirusesList(numViruses, maxBirthProb, clearProb, resistances, mutProb):
     viruses = []
@@ -88,15 +90,8 @@ def createVirusesList(numViruses, maxBirthProb, clearProb, resistances, mutProb)
         viruses.append(ResistantVirus(maxBirthProb, clearProb, resistances, mutProb))
     return viruses
 
-def calcAverage(list_to_average, numTrials):
-    averaged_list = []
-    for list_item in list_to_average:
-        divided_virus = float(list_item / numTrials)
-        averaged_list.append(divided_virus)
-    return averaged_list
 
-
-def plotSimulationWithDrug(list_of_lists):
+def plotSimulationWithDrug(final_viruses):
     """
     population at time=0 is the population after the first call to update
     X axis: number of elapsed time steps
@@ -104,28 +99,27 @@ def plotSimulationWithDrug(list_of_lists):
     returns: a plot!
     """
     # figure_number = 1
-    # for list in list_of_lists:
+    # for list in final_viruses:
     #     pylab.figure(figure_number)
     #     pylab.subplot(4, 1, figure_number, sharey = True)
     #     pylab.hist(list)
     #     figure_number += 1
     # end
 
-    pylab.hist(list_of_lists[0])
+    pdb.set_trace()
 
-    pylab.hist(list_of_lists[1])
-    # pylab.subplot(5, 2, 1)
+    pylab.hist(final_viruses[0])
 
-    pylab.hist(list_of_lists[2])
-    # pylab.subplot(5, 3, 1)
-
-    pylab.hist(list_of_lists[3])
-    # pylab.subplot(5, 4, 1)
-
-    pylab.hist(list_of_lists[4])
-    # pylab.subplot(5, 5, 1)
-
-    pylab.subplot(5, 1, 1)
+    # pylab.hist(final_viruses[1])
+    # # pylab.subplot(5, 2, 1)
+    #
+    # pylab.hist(final_viruses[2])
+    # # pylab.subplot(5, 3, 1)
+    #
+    # pylab.hist(final_viruses[3])
+    # # pylab.subplot(5, 4, 1)
+    #
+    # pylab.subplot(4, 1, 1)
 
 
     pylab.title('Simulation with Drugs')
