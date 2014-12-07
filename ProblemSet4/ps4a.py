@@ -6,22 +6,7 @@ import pylab
 import pdb
 from ps3b import *
 
-#
-# PROBLEM 1
-#
 def simulationDelayedTreatment(numTrials):
-    """
-    Runs simulations and make histograms for problem 1.
-
-    Runs numTrials simulations to show the relationship between delayed
-    treatment and patient outcome using a histogram.
-
-    Histograms of final total virus populations are displayed for delays of 300,
-    150, 75, 0 timesteps (followed by an additional 150 timesteps of
-    simulation).
-
-    numTrials: number of simulation runs to execute (an integer)
-    """
     maxPop = 1000
     numViruses = 100
     maxBirthProb = .1
@@ -29,60 +14,49 @@ def simulationDelayedTreatment(numTrials):
     resistances = {'guttagonol': False}
     mutProb = .005
 
-    viruses_300 = []
-    viruses_150 = []
-    viruses_75 = []
-    viruses_0 = []
-    viruses_resistance = []
+    # simulations returns an array of final virus count, given the timestep (300, 150, ... )
+    print "\n=========="
+    viruses_300 = simulations(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 300, 150, 'guttagonol')
+    print 'Done with viruses 300'
+    print "==========\n"
 
-    for trial in range(numTrials):
-        virus300 = oneSimulation(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 300)
-        virus150 = oneSimulation(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
-        virus75 = oneSimulation(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 75)
-        resistances['guttagonol'] = True
+    viruses_150 = simulations(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150, 150, 'guttagonol')
+    print 'Done with viruses 150'
 
-        virus_added300 = oneSimulation(virus300, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
-        viruses_300.append(virus_added300)
+    viruses_75 = simulations(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 75, 150, 'guttagonol')
+    print 'Done with viruses 75'
 
-        virus_added150 = oneSimulation(virus150, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
-        viruses_150.append(virus_added150)
-
-        virus_added75 = oneSimulation(virus75, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
-        viruses_75.append(virus_added75)
-
-        virus_added0 = oneSimulation(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150)
-        viruses_0.append(virus_added0)
-
-        # pdb.set_trace()
+    viruses_0 = simulations(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 0, 150, 'guttagonol')
+    print 'Done with viruses 0'
 
     plots = [viruses_300, viruses_150, viruses_75, viruses_0]
     plotSimulationWithDrug(plots)
 
 
-def createEmptyList(listLength, list_items = 0):
-    zeroes_list = []
+def createEmptyList(listLength, list_items = 100):
+    initial_viruses_list = []
     for list_item in range(listLength):
         zeroes_list.append(list_items)
-    return zeroes_list
+    return initial_viruses_list
 
 
-
-def oneSimulation(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, timestep):
+def simulations(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, timestep, resistance_timesteps, newDrug = None):
+    final_viruses_counts = []
     for trial in range(numTrials):
-        index = 0
+        print 'Trial: ', trial, 'Timestep: ', timestep
         viruses = createVirusesList(numViruses, maxBirthProb, clearProb, resistances, mutProb)
-
-        # create a new Patient
         patient = TreatedPatient(viruses, maxPop)
 
-        # update and insert count into list for 300 time steps
         for time_step in range(timestep):
             num_viruses = patient.update()
-            # index += 1
+        patient.addPrescription(newDrug)
 
-    # pdb.set_trace()
-    return num_viruses
-    # return viruses_list[-1]
+        for time_step in range(resistance_timesteps):
+            num_viruses = patient.update()
+        final_viruses_counts.append(num_viruses)
+
+    return final_viruses_counts
+
 
 def createVirusesList(numViruses, maxBirthProb, clearProb, resistances, mutProb):
     viruses = []
@@ -90,65 +64,88 @@ def createVirusesList(numViruses, maxBirthProb, clearProb, resistances, mutProb)
         viruses.append(ResistantVirus(maxBirthProb, clearProb, resistances, mutProb))
     return viruses
 
+def numCured(viruses_list):
+    numCured = 0
+    for virus in viruses_list:
+        if virus <= 50:
+            numCured += 1
+    return numCured
 
 def plotSimulationWithDrug(final_viruses):
-    """
-    population at time=0 is the population after the first call to update
-    X axis: number of elapsed time steps
-    Y axis: average size of the virus population in the patient
-    returns: a plot!
-    """
-    # figure_number = 1
-    # for list in final_viruses:
-    #     pylab.figure(figure_number)
-    #     pylab.subplot(4, 1, figure_number, sharey = True)
-    #     pylab.hist(list)
-    #     figure_number += 1
-    # end
-
-    pdb.set_trace()
-
-    pylab.hist(final_viruses[0])
-
-    # pylab.hist(final_viruses[1])
-    # # pylab.subplot(5, 2, 1)
+    # print "\n=========================================="
+    # print 'Final viruses lists'
+    # print "\n-------------------"
+    # print "\tTimestep 300: ", final_viruses[0]
+    # print "-------------------\n"
     #
-    # pylab.hist(final_viruses[2])
-    # # pylab.subplot(5, 3, 1)
+    # print "\n-------------------"
+    # print "\tTimestep 150: ", final_viruses[1]
+    # print "-------------------\n"
     #
-    # pylab.hist(final_viruses[3])
-    # # pylab.subplot(5, 4, 1)
+    # print "\n-------------------"
+    # print "\tTimestep 75: ", final_viruses[2]
+    # print "-------------------\n"
     #
-    # pylab.subplot(4, 1, 1)
+    # print "\n-------------------"
+    # print "\tTimestep 0: ", final_viruses[3]
+    # print "==========================================\n"
 
+    print "\n============="
+    print 'Timestep: 300'
+    print 'Num cured: ', numCured(final_viruses[0])
+    print "============="
+
+    print "\n============="
+    print 'Timestep: 150'
+    print 'Num cured: ', numCured(final_viruses[1])
+    print "============="
+
+    print "\n============="
+    print 'Timestep: 75'
+    print 'Num cured: ', numCured(final_viruses[2])
+    print "============="
+
+    print "\n============="
+    print 'Timestep: 0'
+    print 'Num cured: ', numCured(final_viruses[3])
+    print "=============\n"
+
+
+    # x-axis of the histogram should be:
+    ###### the final total virus population values
+    ###### (choose x axis increments or "histogram bins" according to the range
+    #         of final virus population values you get by running the simulation
+    #         multiple times).
+    # y-axis of the histogram should be:
+    ###### the number of trials belonging to each histogram bin
+
+    # 300 timestep
+    pylab.subplot(5, 1, 1)
+    pylab.hist(final_viruses[0], range(min(final_viruses[0]), max(final_viruses[0])))
+    pylab.title('300 Timestep')
+
+    # 150 Timestep
+    pylab.subplot(5, 1, 2)
+    pylab.hist(final_viruses[1], range(min(final_viruses[1]), max(final_viruses[1])))
+    pylab.title('150 Timestep')
+
+    # 75 timestep
+    pylab.subplot(5, 1, 3)
+    pylab.hist(final_viruses[2], range(-1, max(final_viruses[2])))
+    pylab.title('75 Timestep')
+
+    # pylab.hist(final_viruses[3], range(min(final_viruses[3]), max(final_viruses[3])))
+
+    # 0 timestep
+    pylab.subplot(5, 1, 4)
+    pylab.hist(final_viruses[3], range(-1, 1))
+    pylab.title('0 Timestep')
 
     pylab.title('Simulation with Drugs')
-    pylab.xlabel('Number of Elapsed Time Steps')
-    pylab.ylabel('Average Size of the Virus Population')
+    pylab.xlabel('Final Virus Population values')
+    pylab.ylabel('Number of Trials')
     pylab.legend(loc = 'best')
     pylab.show()
 
 
-
-
-simulationDelayedTreatment(5)
-
-
-
-#
-# PROBLEM 2
-#
-def simulationTwoDrugsDelayedTreatment(numTrials):
-    """
-    Runs simulations and make histograms for problem 2.
-
-    Runs numTrials simulations to show the relationship between administration
-    of multiple drugs and patient outcome.
-
-    Histograms of final total virus populations are displayed for lag times of
-    300, 150, 75, 0 timesteps between adding drugs (followed by an additional
-    150 timesteps of simulation).
-
-    numTrials: number of simulation runs to execute (an integer)
-    """
-    # TODO
+simulationDelayedTreatment(10000)
