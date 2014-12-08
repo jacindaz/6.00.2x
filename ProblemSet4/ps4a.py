@@ -7,11 +7,26 @@ import pdb
 from ps3b import *
 
 def simulationDelayedTreatment(numTrials):
+    # ORIGINAL VALUES
+    # global maxPop = 1000
+    # global numViruses = 100
+    # global maxBirthProb = .1
+    # global clearProb = .05
+    # global resistances = {'guttagonol': False}
+    # global mutProb = .005
+
+    global maxPop
+    global numViruses
+    global maxBirthProb
+    global clearProb
+    global resistances
+    global mutProb
+
     maxPop = 1000
     numViruses = 100
     maxBirthProb = .1
     clearProb = .05
-    resistances = {'guttagonol': False}
+    resistances = {'guttagonol': True}
     mutProb = .005
 
     # simulations returns an array of final virus count, given the timestep (300, 150, ... )
@@ -110,6 +125,15 @@ def plotSimulationWithDrug(final_viruses):
     print 'Num cured: ', numCured(final_viruses[3])
     print "=============\n"
 
+    print "\n=============="
+    print 'maxpop: ', maxPop
+    print 'numviruses: ', numViruses
+    print 'maxBirthProb: ',  maxBirthProb
+    print 'clearProb: ', clearProb
+    print 'resistances: ', resistances
+    print 'muProb: ', mutProb
+    print "==============\n"
+
 
     # x-axis of the histogram should be:
     ###### the final total virus population values
@@ -148,4 +172,4 @@ def plotSimulationWithDrug(final_viruses):
     pylab.show()
 
 
-simulationDelayedTreatment(10000)
+simulationDelayedTreatment(1000)
