@@ -1,5 +1,4 @@
 # 6.00.2x Problem Set 4
-
 import numpy
 import random
 import pylab
@@ -56,9 +55,45 @@ def simulationTwoDrugsDelayedTreatment(numTrials):
     viruses_0 = simulationsWithViruses(v_0[-1], maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, 150, v_0, 'grimpex')
 
 
+    print "\n============="
+    print '300 timestep: ', viruses_300
+    print "=============\n"
+
+    print "\n============="
+    print '150 timestep: ', viruses_150
+    print "=============\n"
+
+    print "\n============="
+    print '75 timestep: ', viruses_75
+    print "=============\n"
+
+    print "\n============="
+    print '0 timestep: ', viruses_0
+    print "=============\n"
+
+
+    variance_300 = calcVariance(viruses_300)
+    variance_150 = calcVariance(viruses_150)
+    variance_75 = calcVariance(viruses_75)
+    variance_0 = calcVariance(viruses_0)
+
+    print "\n============="
+    print 'Variances.........'
+    print '300 timestep: ', variance_300
+    print '150 timestep: ', variance_150
+    print '75 timestep: ', variance_75
+    print '0 timestep: ', variance_0
+    print "============="
+
     # simulations returns an array of final virus count, given the timestep (300, 150, ... )
     plots = [viruses_300, viruses_150, viruses_75, viruses_0]
+
+    pdb.set_trace()
+
     plotSimulationWithDrug(plots)
+
+
+
 
 def simulationsWithViruses(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials, resistance_timesteps, virus_list, newDrug = None):
     final_viruses_counts = virus_list
@@ -100,13 +135,6 @@ def createVirusesList(numViruses, maxBirthProb, clearProb, resistances, mutProb)
     for virus in range(numViruses):
         viruses.append(ResistantVirus(maxBirthProb, clearProb, resistances, mutProb))
     return viruses
-
-def numCured(viruses_list):
-    numCured = 0
-    for virus in viruses_list:
-        if virus <= 50:
-            numCured += 1
-    return numCured
 
 def plotSimulationWithDrug(final_viruses):
     # print "\n=========================================="
@@ -194,4 +222,30 @@ def plotSimulationWithDrug(final_viruses):
     pylab.show()
 
 
-simulationTwoDrugsDelayedTreatment(10)
+# FUNCTIONS USED FOR PROBLEM SET QUESTION CALCULATIONS
+
+def numCured(viruses_list):
+    numCured = 0
+    for virus in viruses_list:
+        if virus <= 50:
+            numCured += 1
+    return numCured
+
+def calcVariance(list_of_viruses):
+    viruses_mean = numpy.mean(list_of_viruses)
+
+    subtract_mean_list = []
+    for virus in list_of_viruses:
+        subtraction = (virus - float(viruses_mean)) ** 2
+        subtract_mean_list.append(subtraction)
+
+    sum = 0
+    for number in subtract_mean_list:
+        sum += number
+
+    variance = sum / float(len(subtract_mean_list))
+    return variance
+
+
+# calcVariance([1,2,3,4])
+simulationTwoDrugsDelayedTreatment(10000)
