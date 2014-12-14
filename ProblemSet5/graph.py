@@ -99,6 +99,11 @@ class WeightedDigraph(Digraph):
     def childrenOf(self, node):
         return self.edges[node]
 
+    def findWeightedEdge(self, src, dest):
+        for weighted_edge in self.weighted_edge_objects:
+            if weighted_edge.src == src and weighted_edge.dest == dest:
+                return weighted_edge
+
     def __str__(self):
         # need to somehow call the WeightedEdge.__str__(self) method
         # and print out all weighted edges
@@ -108,19 +113,36 @@ class WeightedDigraph(Digraph):
 
         # pdb.set_trace()
 
-        for weighted_edge in self.weighted_edge_objects:
-            print "\n=================="
-            print 'Weighted edge object: ', weighted_edge
-            print "==================\n"
+        res = ''
+        for src_node in self.edges:
+            for dest_node in self.edges[src_node]:
+                # self.edges[node] returns list of node objects
+                # somehow need to search weighted_edge_objects list
+                # to find the WeightedEdge object
+                weighted_edge_object = self.findWeightedEdge(src_node, dest_node)
+                edge_total_distance = weighted_edge_object.total_distance
+                edge_outdoor_distance = weighted_edge_object.outdoors_distance
 
-            if weighted_edge:
-                try:
-                    weighted_edge.__str__()
-                except TypeError:
-                    print "\n=================="
-                    print 'Inside WeightedDigraph class'
-                    print 'TypeError has been raised'
-                    print "==================\n"
+                res = '{0}{1}->{2} ({3}, {4})\n'.format(res, src_node, dest_node, edge_total_distance, edge_outdoor_distance)
+        return res[:-1]
+
+
+        # for weighted_edge in self.weighted_edge_objects:
+        #     print "\n=================="
+        #     print 'Weighted edge object: ', weighted_edge
+        #     print "==================\n"
+        #
+        #     # pdb.set_trace()
+        #
+        #     if weighted_edge:
+        #         try:
+        #             weighted_edge.__str__()
+        #         except TypeError:
+        #             # pdb.set_trace()
+        #             print "\n=================="
+        #             print 'Inside WeightedDigraph class'
+        #             print 'TypeError has been raised'
+        #             print "==================\n"
 
 
 class WeightedEdge(Edge):
@@ -152,21 +174,21 @@ g.addNode(nb)
 g.addNode(nc)
 
 e1 = WeightedEdge(na, nb, 15, 10)
-print e1
+# print e1
 # # =>a->b (15, 10)
 
-print e1.getTotalDistance()
+# print e1.getTotalDistance()
 # # => 15
 
-print e1.getOutdoorDistance()
+# print e1.getOutdoorDistance()
 # # =>10
 
 e2 = WeightedEdge(na, nc, 14, 6)
 e3 = WeightedEdge(nb, nc, 3, 1)
-print e2
+# print e2
 # # => a->c (14, 6)
 
-print e3
+# print e3
 # # => b->c (3, 1)
 
 g.addEdge(e1)
