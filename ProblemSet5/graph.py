@@ -74,10 +74,11 @@ class Digraph(object):
 class WeightedDigraph(Digraph):
 
     def __init__(self):
-        self.nodes = set([])
+        Digraph.__init__(self)
 
+        # self.nodes = set([])
         # what kinds of info about edges do I need to store ???
-        self.edges = {}  # key is src, value is destination
+        # self.edges = {}  # key is src, value is destination
         self.weighted_edge_objects = []
 
     def addEdge(self, edge):
@@ -90,11 +91,14 @@ class WeightedDigraph(Digraph):
             # can't create an edge without the src + dest nodes
             raise ValueError('Node not in graph')
         else:
-        # if the src doesn't have any destinations yet ...
             if src not in self.edges:
-                self.edges[src] = []
-            self.edges[src].append(dest)
-            self.weighted_edge_objects.append(edge)
+                self.edges[src] = []   # adds source node key to self.edges dictionary
+
+            # if the source node exists, check if the destination node exists
+            elif (src in self.edges) and (dest not in self.edges[src]):
+                # if not, add destination node to the source node key
+                self.edges[src].append(dest)
+                self.weighted_edge_objects.append(edge)
 
     def childrenOf(self, node):
         return self.edges[node]
@@ -105,14 +109,6 @@ class WeightedDigraph(Digraph):
                 return weighted_edge
 
     def __str__(self):
-        # need to somehow call the WeightedEdge.__str__(self) method
-        # and print out all weighted edges
-
-        # looping over self.edges dictionary
-        # each key in self.edges is a Node object
-
-        # pdb.set_trace()
-
         res = ''
         for src_node in self.edges:
             for dest_node in self.edges[src_node]:
@@ -125,24 +121,6 @@ class WeightedDigraph(Digraph):
 
                 res = '{0}{1}->{2} ({3}, {4})\n'.format(res, src_node, dest_node, edge_total_distance, edge_outdoor_distance)
         return res[:-1]
-
-
-        # for weighted_edge in self.weighted_edge_objects:
-        #     print "\n=================="
-        #     print 'Weighted edge object: ', weighted_edge
-        #     print "==================\n"
-        #
-        #     # pdb.set_trace()
-        #
-        #     if weighted_edge:
-        #         try:
-        #             weighted_edge.__str__()
-        #         except TypeError:
-        #             # pdb.set_trace()
-        #             print "\n=================="
-        #             print 'Inside WeightedDigraph class'
-        #             print 'TypeError has been raised'
-        #             print "==================\n"
 
 
 class WeightedEdge(Edge):
@@ -164,40 +142,40 @@ class WeightedEdge(Edge):
 
 # TESTING FOR WEIGHTED DIGRAPH CLASS---------------------------------------------
 
-g = WeightedDigraph()
-na = Node('a')
-nb = Node('b')
-nc = Node('c')
-
-g.addNode(na)
-g.addNode(nb)
-g.addNode(nc)
-
-e1 = WeightedEdge(na, nb, 15, 10)
-# print e1
-# # =>a->b (15, 10)
-
-# print e1.getTotalDistance()
-# # => 15
-
-# print e1.getOutdoorDistance()
-# # =>10
-
-e2 = WeightedEdge(na, nc, 14, 6)
-e3 = WeightedEdge(nb, nc, 3, 1)
-# print e2
-# # => a->c (14, 6)
-
-# print e3
-# # => b->c (3, 1)
-
-g.addEdge(e1)
-g.addEdge(e2)
-g.addEdge(e3)
-
-g.childrenOf(na)                 # =>[b, c]
-
-print g
+# g = WeightedDigraph()
+# na = Node('a')
+# nb = Node('b')
+# nc = Node('c')
+#
+# g.addNode(na)
+# g.addNode(nb)
+# g.addNode(nc)
+#
+# e1 = WeightedEdge(na, nb, 15, 10)
+# # print e1
+# # # =>a->b (15, 10)
+#
+# # print e1.getTotalDistance()
+# # # => 15
+#
+# # print e1.getOutdoorDistance()
+# # # =>10
+#
+# e2 = WeightedEdge(na, nc, 14, 6)
+# e3 = WeightedEdge(nb, nc, 3, 1)
+# # print e2
+# # # => a->c (14, 6)
+#
+# # print e3
+# # # => b->c (3, 1)
+#
+# g.addEdge(e1)
+# g.addEdge(e2)
+# g.addEdge(e3)
+#
+# g.childrenOf(na)                 # =>[b, c]
+#
+# print g
 
 # try:
 #     print g
