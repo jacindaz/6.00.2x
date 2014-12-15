@@ -112,7 +112,10 @@ class WeightedDigraph(Digraph):
                 # self.weighted_edge_objects.append(edge)
 
     def childrenOf(self, node):
-        return self.edges[node]
+        children = []
+        for child in self.edges[node]:
+            children.append(child[0])
+        return children
 
     def __str__(self):
         res = ''
