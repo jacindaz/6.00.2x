@@ -102,7 +102,12 @@ class WeightedDigraph(Digraph):
             # if the source node exists in self.edges
             # and it doesn't already have the destination node
             # add the destination, with WeightedEdge info
-            if (src in self.edges) and (has_destination == False):
+
+            # weird - apparently, want to add duplicate destinations...
+            # line below was previous implementation
+            # if (src in self.edges) and (has_destination == False):
+
+            if (src in self.edges):
                 self.edges[src].append([dest, (edge.total_distance, edge.outdoors_distance)])
                 # self.weighted_edge_objects.append(edge)
 
