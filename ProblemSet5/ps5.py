@@ -108,6 +108,7 @@ def load_map(mapFilename):
 mitMap = load_map("mit_map.txt")
 print isinstance(mitMap, Digraph)
 print isinstance(mitMap, WeightedDigraph)
+print mitMap.edges
 
 
 

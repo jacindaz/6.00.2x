@@ -76,9 +76,10 @@ class WeightedDigraph(Digraph):
     def __init__(self):
         Digraph.__init__(self)
 
-        # self.nodes = set([])
-        # what kinds of info about edges do I need to store ???
-        # self.edges = {}  # key is src, value is destination
+        # weighted_edges is a dictionary
+        # valueis array of arrays
+        # edge is this format: {1: [[2, (75.0, 60.0)], [4, (80.0, 65.0)], [3, (36.0, 0.0)]], }
+        self.weighted_edges = {}
         self.weighted_edge_objects = []
 
     def addEdge(self, edge):
@@ -94,19 +95,19 @@ class WeightedDigraph(Digraph):
             if src not in self.edges:
                 self.edges[src] = []   # adds source node key to self.edges dictionary
 
-            # if the source node exists, check if the destination node exists
-            elif (src in self.edges) and (dest not in self.edges[src]):
-                # if not, add destination node to the source node key
-                self.edges[src].append(dest)
-                self.weighted_edge_objects.append(edge)
+            # does self.edges already have this destination
+            # under the source node?
+            has_destination = self.hasDestination(self.edges, src, dest)
+
+            # if the source node exists in self.edges
+            # and it doesn't already have the destination node
+            # add the destination, with WeightedEdge info
+            if (src in self.edges) and (has_destination == False):
+                self.edges[src].append([dest, (edge.total_distance, edge.outdoors_distance)])
+                # self.weighted_edge_objects.append(edge)
 
     def childrenOf(self, node):
         return self.edges[node]
-
-    def findWeightedEdge(self, src, dest):
-        for weighted_edge in self.weighted_edge_objects:
-            if weighted_edge.src == src and weighted_edge.dest == dest:
-                return weighted_edge
 
     def __str__(self):
         res = ''
@@ -121,6 +122,27 @@ class WeightedDigraph(Digraph):
 
                 res = '{0}{1}->{2} ({3}, {4})\n'.format(res, src_node, dest_node, edge_total_distance, edge_outdoor_distance)
         return res[:-1]
+
+    def findWeightedEdge(self, src, dest):
+        for weighted_edge in self.weighted_edge_objects:
+            if weighted_edge.src == src and weighted_edge.dest == dest:
+                return weighted_edge
+
+    def hasDestination(self, weighted_edges_hash, src, dest):
+        if weighted_edges_hash[src] == []:
+            return False
+        else:
+            # source_node is 1: [[2, (75.0, 60.0)], [4, (80.0, 65.0)]]
+            # destination is each nested array:
+            #       [[2, (75.0, 60.0)], [4, (80.0, 65.0)]]
+            for destination in weighted_edges_hash[src]:
+                # is destination[0] the name, or the Node object?
+                if destination[0] == dest:
+                    return True
+
+            # did not break out of loop + did not find destination
+            return False
+
 
 
 class WeightedEdge(Edge):
