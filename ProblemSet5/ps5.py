@@ -121,7 +121,10 @@ print mitMap.edges
 #
 # State the optimization problem as a function to minimize
 # and what the constraints are
-#
+#   1) start + end buildings can help limit which edges I'm looking at
+#   2) maxTotal Dist limits, so don't have to look at outdoor distance
+#       if maxTotal distance is too high
+#   3) lastly look if surprasses max distance outdoors
 
 def bruteForceSearch(digraph, start, end, maxTotalDist, maxDistOutdoors):
     """
@@ -149,6 +152,20 @@ def bruteForceSearch(digraph, start, end, maxTotalDist, maxDistOutdoors):
     """
     #TODO
     pass
+
+def startEndEdges(source_node, destination_node):
+    # returns a list of nodes with the desired source/destination
+
+
+def exceedsMaxTotalDist(source_node, destination_node, maxTotalDist):
+    # does this edge (src + dest) exceed the max total distance?
+
+
+def exceedsMaxDistOutdoors(source_node, destination_node, maxDistOutdoors):
+    # does this edge (src + dest) exceed the max outdoors distance?
+
+
+
 
 #
 # Problem 4: Finding the Shorest Path using Optimized Search Method
